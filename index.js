@@ -80,7 +80,7 @@ app.get('/articles', (req, res, next) => {
 });
 
 
-app.get("/article/:id", (req, res) => {
+app.get("/article/:Id", (req, res) => {
   contentService
     .getArticleById(req.params.Id)
     .then((article) => {
@@ -94,6 +94,7 @@ app.get("/article/:id", (req, res) => {
 app.get("/articles/add", (req, res) => {
   res.sendFile(path.join(__dirname, "views", "addArticle.html"));
 });
+
 app.post('/articles/add', upload.single("featureImage"), (req, res) => {
   if (req.file) {
       let streamUpload = (req) => {
