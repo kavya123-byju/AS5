@@ -51,3 +51,23 @@ Cloud Name: dexmgropy
 API Key: 269573191974962
 API secret: Ef-1jBn7kdls2-dfzmjPPFiCyhU
 API environment: CLOUDINARY_URL=cloudinary://269573191974962:Ef-1jBn7kdls2-dfzmjPPFiCyhU@dexmgropy
+
+
+@everyone , I know a lot of you like to do the assignments at the last minute, but I want to let you know it's unlikely I'm not going to be around after 6pm tonight all the way through til Monday.
+
+Here are common questions so far that I've had;
+
+**#1)** The assignment gives you code **EXAMPLES**, but they might not work with your code.
+
+__Example__ if you exported your modules using module.exports = { .... }, then the functions with module.exports.functionName will not work. You will have to modify these to work with your own code.
+
+I also found some of the code snippets are might not compile exactly as shown, you will have to debug / fix.
+
+**#2)** Yes, you must have a form, and yes it must work / upload an image to Cloudinary. It does NOT have to save to your JSON FILE, but it most definitely must add to your ARTICLES array. 
+
+__Example__ If I "add a new post with a new image", and then click on your "articles" tab, all of your articles WITHOUT images should show, and also the new article I added should show as well.
+
+**#3** Depending how you setup your JSON files, the Search functions may or may not work directly. 
+
+**Example** My JSON files had their "Id" with a capital "I" and lower case "d", but the search function looks for both lowercase letters. This means your search results won't return anything. Make sure you check your CASE as well as your NAMES when using these functions. They will be checked.
+

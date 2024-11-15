@@ -1,26 +1,26 @@
 // Import the Express library
 const express = require("express");
 
-const multer = require("multer"); 
+const multer = require("multer");
 
-const cloudinary = require('cloudinary').v2; 
+const cloudinary = require("cloudinary").v2;
 
-const streamifier = require('streamifier'); 
+const streamifier = require("streamifier");
 
-cloudinary.config({ 
-  cloud_name: 'dexmgropy', 
-  api_key: '269573191974962', 
-  api_secret: 'Ef-1jBn7kdls2-dfzmjPPFiCyhU', 
-  secure: true 
-}); 
+cloudinary.config({
+  cloud_name: "dexmgropy",
+  api_key: "269573191974962",
+  api_secret: "Ef-1jBn7kdls2-dfzmjPPFiCyhU",
+  secure: true,
+});
 
-const upload = multer(); 
+const upload = multer();
 
 // Import the 'path' module to handle file paths
 const path = require("path");
 
 // Import the custom data handling module, assumed to manage categories and articles
-const storeData = require("./content-service");
+const contentService = require("./content-service");
 
 // Create an Express application instance
 const app = express();
@@ -43,66 +43,109 @@ app.get("/about", (req, res) => {
 
 // Route for the "/categories" endpoint, returning categories in JSON format
 app.get("/categories", (req, res) => {
-  storeData.getCategories().then((data) => {
+  contentService.getCategories().then((data) => {
     res.json(data); // Respond with categories as JSON
   });
 });
 
-// Route for the "/articles" endpoint, returning articles in JSON format
-app.get("/articles", (req, res) => {
-  storeData.getArticles().then((data) => {
-    res.json(data); // Respond with articles as JSON
-  });
+app.get('/articles', (req, res, next) => {
+  if (req.query.category) {
+      // Handle filtering by category
+      contentService.getArticlesByCategory(req.query.category)
+          .then((articles) => {
+              res.json(articles);
+          })
+          .catch((err) => {
+              res.status(404).json({ message: err });
+          });
+  } else if (req.query.minDate) {
+      // Handle filtering by minDate
+      contentService.getArticlesByMinDate(req.query.minDate)
+          .then((articles) => {
+              res.json(articles);
+          })
+          .catch((err) => {
+              res.status(404).json({ message: err });
+          });
+  } else {
+      // If no query parameters, fetch all articles
+      contentService.getAllArticles()
+          .then((articles) => {
+              res.json(articles);
+          })
+          .catch((err) => {
+              res.status(404).json({ message: err });
+          });
+  }
 });
 
-app.get('/articles/add', (req, res) => { 
-  res.sendFile(path.join(__dirname, 'views', 'addArticle.html')); 
-}); 
 
-
-app.post('/articles/add', upload.single("featureImage"), (req, res) => 
-{ 
-  if (req.file)
-  { 
-      let streamUpload = (req) => { 
-          return new Promise((resolve, reject) => { 
-              let stream = cloudinary.uploader.upload_stream( 
-                  (error, result) => { 
-                      if (result) resolve(result); 
-                      else reject(error); 
-                  } 
-              ); 
-              streamifier.createReadStream(req.file.buffer).pipe(stream); 
-          }); 
-      }; 
-
-      async function upload(req) { 
-          let result = await streamUpload(req); 
-          return result; 
-      } 
-
-      upload(req).then((uploaded) => { 
-          processArticle(uploaded.url); 
-      }).catch(err => res.status(500).json({ message: "Image upload failed", error: err })); 
-  } 
-  else
-  { 
-      processArticle(""); 
-  } 
-
-  function processArticle(imageUrl) { 
-
-      req.body.featureImage = imageUrl; 
-
-      // Add article to content-service 
-      contentService.addArticle((req.body) 
-          .then(() => res.redirect('/articles')) 
-          .catch(err => res.status(500).json({ message: "Article creation failed", error: err })));
-  } 
+app.get("/article/:id", (req, res) => {
+  contentService
+    .getArticleById(req.params.Id)
+    .then((article) => {
+      res.json(article);
+    })
+    .catch((err) => {
+      res.status(404).json({ message: err });
+    });
 });
+
+app.get("/articles/add", (req, res) => {
+  res.sendFile(path.join(__dirname, "views", "addArticle.html"));
+});
+app.post('/articles/add', upload.single("featureImage"), (req, res) => {
+  if (req.file) {
+      let streamUpload = (req) => {
+          return new Promise((resolve, reject) => {
+              let stream = cloudinary.uploader.upload_stream(
+                  { folder: 'articles' }, // Optional: Store in a specific folder
+                  (error, result) => {
+                      if (result) resolve(result);
+                      else reject(error);
+                  }
+              );
+              streamifier.createReadStream(req.file.buffer).pipe(stream);
+          });
+      };
+
+      async function uploadToCloudinary(req) {
+          let result = await streamUpload(req);
+          return result.url; // Return the uploaded image URL
+      }
+
+      uploadToCloudinary(req)
+          .then((imageUrl) => {
+              processArticle(imageUrl);
+          })
+          .catch((err) => {
+              res.status(500).json({ message: 'Image upload failed', error: err });
+          });
+  } else {
+      processArticle(""); // If no image uploaded, pass an empty string
+  }
+
+  function processArticle(imageUrl) {
+      // Build the article object
+      const articleData = {
+          title: req.body.title,
+          content: req.body.content,
+          category: req.body.category,
+          published: req.body.published === 'on', // Checkbox value
+          featureImage: imageUrl || "", // Use the uploaded image URL or empty string
+          postDate: new Date().toISOString() // Current timestamp
+      };
+
+      // Call content-service to add the article
+      contentService.addArticle(articleData)
+          .then(() => res.redirect('/articles')) // Redirect to articles page on success
+          .catch((err) => res.status(500).json({ message: 'Failed to add article', error: err }));
+  }
+});
+
 
 // Initialize the data in the storeData module, then start the server
-storeData.initialize().then(() => {
+contentService.initialize().then(() => {
   app.listen(HTTP_PORT); // Start server and listen on specified port
   console.log("server listening @ http://localhost:" + HTTP_PORT);
 });
