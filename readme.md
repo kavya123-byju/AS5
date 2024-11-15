@@ -41,3 +41,13 @@ npm install express
    ```
 
 2. Open your browser to navigate to `http://localhost:3838` 
+
+
+## Cloudinary
+
+Cloudinary to host my images offsite of the web server. For reference, here are the current API keys;
+
+Cloud Name: dexmgropy
+API Key: 269573191974962
+API secret: Ef-1jBn7kdls2-dfzmjPPFiCyhU
+API environment: CLOUDINARY_URL=cloudinary://269573191974962:Ef-1jBn7kdls2-dfzmjPPFiCyhU@dexmgropy

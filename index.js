@@ -1,6 +1,21 @@
 // Import the Express library
 const express = require("express");
 
+const multer = require("multer"); 
+
+const cloudinary = require('cloudinary').v2; 
+
+const streamifier = require('streamifier'); 
+
+cloudinary.config({ 
+  cloud_name: 'dexmgropy', 
+  api_key: '269573191974962', 
+  api_secret: 'Ef-1jBn7kdls2-dfzmjPPFiCyhU', 
+  secure: true 
+}); 
+
+const upload = multer(); 
+
 // Import the 'path' module to handle file paths
 const path = require("path");
 
@@ -38,6 +53,52 @@ app.get("/articles", (req, res) => {
   storeData.getArticles().then((data) => {
     res.json(data); // Respond with articles as JSON
   });
+});
+
+app.get('/articles/add', (req, res) => { 
+  res.sendFile(path.join(__dirname, 'views', 'addArticle.html')); 
+}); 
+
+
+app.post('/articles/add', upload.single("featureImage"), (req, res) => 
+{ 
+  if (req.file)
+  { 
+      let streamUpload = (req) => { 
+          return new Promise((resolve, reject) => { 
+              let stream = cloudinary.uploader.upload_stream( 
+                  (error, result) => { 
+                      if (result) resolve(result); 
+                      else reject(error); 
+                  } 
+              ); 
+              streamifier.createReadStream(req.file.buffer).pipe(stream); 
+          }); 
+      }; 
+
+      async function upload(req) { 
+          let result = await streamUpload(req); 
+          return result; 
+      } 
+
+      upload(req).then((uploaded) => { 
+          processArticle(uploaded.url); 
+      }).catch(err => res.status(500).json({ message: "Image upload failed", error: err })); 
+  } 
+  else
+  { 
+      processArticle(""); 
+  } 
+
+  function processArticle(imageUrl) { 
+
+      req.body.featureImage = imageUrl; 
+
+      // Add article to content-service 
+      contentService.addArticle((req.body) 
+          .then(() => res.redirect('/articles')) 
+          .catch(err => res.status(500).json({ message: "Article creation failed", error: err })));
+  } 
 });
 
 // Initialize the data in the storeData module, then start the server
