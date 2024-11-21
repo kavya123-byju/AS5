@@ -1,5 +1,5 @@
 {
-  "name": "web322_as2_solution",
+  "name": "web322_as3_solution",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -7,6 +7,7 @@
   },
   "author": "",
   "license": "ISC",
+  "enc": "5363616E6C616E205765623332322041533320463234",
   "description": "",
   "dependencies": {
     "cloudinary": "^2.5.1",
