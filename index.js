@@ -100,7 +100,7 @@ app.get("/articles", (req, res) => {
   }
 });
 
-// Single article route by ID
+// Single article route by ID (modified)
 app.get("/article/:Id", (req, res) => {
   contentService
     .getArticleById(req.params.Id)
@@ -109,7 +109,16 @@ app.get("/article/:Id", (req, res) => {
       if (!article.published) {
         return res.status(404).render("404"); // Render 404 page if not published
       }
-      res.render("article", { article });
+
+      // Get the category name based on the article's category
+      contentService.getCategories().then((categories) => {
+        const categoryName = categories.find(
+          (category) => category.id === article.category
+        )?.name || "Unknown Category";
+
+        // Pass the article data and the categoryName to the article.ejs view
+        res.render("article", { article, categoryName });
+      });
     })
     .catch((err) => {
       res.status(404).render("404", { error: err.message });
