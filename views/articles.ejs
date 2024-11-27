@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Articles</title>
+    <link href="/css/main.css" rel="stylesheet"> <!-- Make sure this path is correct -->
+    <!-- Add Bootstrap if needed for styling the table -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <div class="container mt-5">
+        <!-- Conditionally display error message -->
+        <% if (error) { %>
+            <div class="alert alert-danger">
+                <%= error %>
+            </div>
+        <% } %>
+
+        <h1>Articles</h1>
+
+        <!-- Table for listing articles -->
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Iterate over articles data -->
+                <% articles.forEach(article => { %>
+                    <tr>
+                        <!-- Title linked to the individual article page -->
+                        <td><a href="/article/<%= article.id %>"><%= article.title %></a></td>
+                        <!-- Category linked to filter by category -->
+                        <td><a href="/articles?category=<%= article.categoryId %>"><%= article.categoryName %></a></td>
+                        <!-- Format the date to be more readable -->
+                        <td><%= new Date(article.postDate).toLocaleDateString() %></td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+
+</body>
+</html>
