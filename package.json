@@ -8,12 +8,13 @@
   "author": "",
   "license": "ISC",
   "enc": "5363616E6C616E205765623332322041533320463234",
-  "description": "",
+  "description": "A simple Node.js API that reads articles from a JSON file and returns only the published articles. Built with Express, this site is ready for local development and can be easily deployed.",
   "dependencies": {
     "cloudinary": "^2.5.1",
     "ejs": "^3.1.10",
     "express": "^4.21.1",
     "multer": "^1.4.5-lts.1",
     "streamifier": "^0.1.1"
-  }
+  },
+  "keywords": []
 }
