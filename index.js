@@ -8,9 +8,9 @@ const contentService = require("./content-service");
 
 // Cloudinary configuration
 cloudinary.config({
-  cloud_name: 'Kavya Byju',  
-  api_key: '395145969244964',       
-  api_secret: 'UWMoBIfHNnDcJQsv9LbvrbA8vFQ', 
+  cloud_name: 'Kavya Byju',
+  api_key: '395145969244964',
+  api_secret: 'UWMoBIfHNnDcJQsv9LbvrbA8vFQ',
   secure: true
 });
 
@@ -29,6 +29,9 @@ app.set("views", path.join(__dirname, "views"));
 
 // Serve static files from the "public" directory
 app.use(express.static("public"));
+
+// Middleware to parse incoming requests with urlencoded payloads (like form submissions)
+app.use(express.urlencoded({ extended: true }));
 
 // Redirect root path to the "/about" page
 app.get("/", (req, res) => {
@@ -129,6 +132,7 @@ app.get("/article/:Id", (req, res) => {
 app.get("/articles/add", (req, res) => {
   contentService.getCategories()
     .then(categories => {
+      // Pass the categories to the view for the Add Article form
       res.render("addArticle", { categories });
     })
     .catch(err => {
@@ -172,7 +176,7 @@ app.post("/articles/add", upload.single("featureImage"), (req, res) => {
     const articleData = {
       title: req.body.title,
       content: req.body.content,
-      category: req.body.category,
+      category: req.body.category,  // Ensure the selected category is included
       published: req.body.published === "on",
       featureImage: imageUrl || "",
       postDate: new Date().toISOString(),
@@ -194,5 +198,5 @@ contentService.initialize().then(() => {
   });
 });
 
-// Export the Express app instances
+// Export the Express app instance
 module.exports = app;
