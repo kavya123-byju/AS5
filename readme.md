@@ -1,5 +1,5 @@
 
-# web322-assignment4
+# web322-assignment 4
 
 # Web322 Assignment
 
@@ -8,10 +8,11 @@ Student Number:  155142227
 Student Email:  kbyju@myseneca.ca
 Date Created:  27 November 2024
 
-GITHUB URL:  https://github.com/kavya123-byju/new-rep.git
-VERCEL URL:  web322assignments-five.vercel.app
-            web322assignments-git-master-kavya-byjus-projects.vercel.app
-            web322assignments-cgcisxk0q-kavya-byjus-projects.vercel.app
+GITHUB URL:  https://github.com/kavya123-byju/Assignment-4.git
+VERCEL URL:  assignment-4-nu-six.vercel.app
+            assignment-4-git-main-kavya-byjus-projects.vercel.app
+            assignment-4-2orxnmysi-kavya-byjus-projects.vercel.app
+
 
 ## Description
 This project is a blog focused on fall fashion and coding.
