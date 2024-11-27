@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech & Fashion Blog</title>
+    <!-- Bootstrap CSS (Version 4.5.2) -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/main.css" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Header with Navigation -->
+  <header class="bg-primary text-white p-3">
+    <div class="container">
+      <nav class="nav justify-content-center">
+        <a class="nav-link text-white" href="/">Home</a>
+        <a class="nav-link text-white" href="/about">About</a>
+        <a class="nav-link text-white" href="/articles">Articles</a>
+        <a class="nav-link text-white" href="/categories">Categories</a>
+        <a class="nav-link text-white" href="/articles/add">Add Article</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Content Area -->
+  <main class="container my-4">
+    <div class="content p-4 bg-light">
+      <h2>About Me</h2>
+      <p>Hello! I'm Kavya Byju, a passionate tech enthusiast and fashion lover. This blog is dedicated to bringing the latest insights into both the tech and fashion worlds. I believe in the power of technology to innovate fashion, and vice versa. Here, I'll be sharing my thoughts, trends, tips, and articles that combine both of these fascinating realms. Stay tuned for exciting content!</p>
+
+      <!-- Dynamically generate links for testing -->
+      <a href="/article/<%= exampleArticleId %>">Search by Id: <%= exampleArticleId %></a><br/><br/>
+      <a href="/articles/?minDate=<%= exampleMinDate %>">Min Date: <%= exampleMinDate %></a><br/><br/>
+      <a href="/articles/?category=<%= exampleCategory %>">Category: <%= exampleCategory %></a><br/><br/>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-dark text-white text-center py-3">
+    <div class="container">
+      <p>© 2024 Kavya Byju, Student Number: 155142227, <a href="mailto:kbyju@myseneca.ca" class="text-white">kbyju@myseneca.ca</a>. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS and dependencies -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>

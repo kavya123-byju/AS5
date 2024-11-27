@@ -44,10 +44,9 @@
         <div class="mb-3">
             <label for="category" class="form-label">Category</label>
             <select id="category" name="category" class="form-select" required>
-                <option value="News">News</option>
-                <option value="Sports">Sports</option>
-                <option value="Technology">Technology</option>
-                <option value="Entertainment">Entertainment</option>
+                <% categories.forEach(function(category) { %>
+                    <option value="<%= category %>"><%= category %></option>
+                <% }); %>
             </select>
         </div>
 
