@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tech & Fashion Blog - Add Article</title>
+  <title>Tech & Fashion Blog - Add/Update Article</title>
   <!-- Bootstrap CSS -->
   <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   <link href="/css/main.css" rel="stylesheet">
@@ -26,18 +26,25 @@
   <!-- Content Area -->
   <main class="container my-4">
     <div class="content p-4 bg-light">
-      <h2>Add New Article</h2>
-      <form action="/articles/add" method="POST" enctype="multipart/form-data">
+      <h2><%= article ? 'Edit Article' : 'Add New Article' %></h2>
+      
+      <form action="<%= article ? '/articles/edit/' + article.id : '/articles/add' %>" method="POST" enctype="multipart/form-data">
+        
+        <!-- Hidden input to use PUT method for editing -->
+        <% if (article) { %>
+          <input type="hidden" name="_method" value="PUT" />
+        <% } %>
+
         <!-- Title -->
         <div class="mb-3">
             <label for="title" class="form-label">Article Title</label>
-            <input type="text" id="title" name="title" class="form-control" placeholder="Enter article title" required>
+            <input type="text" id="title" name="title" class="form-control" placeholder="Enter article title" value="<%= article ? article.title : '' %>" required>
         </div>
 
         <!-- Content -->
         <div class="mb-3">
             <label for="content" class="form-label">Article Content</label>
-            <textarea id="content" name="content" class="form-control" rows="5" placeholder="Write your article content here..." required></textarea>
+            <textarea id="content" name="content" class="form-control" rows="5" placeholder="Write your article content here..." required><%= article ? article.content : '' %></textarea>
         </div>
 
         <!-- Category -->
@@ -45,14 +52,14 @@
             <label for="category" class="form-label">Category</label>
             <select id="category" name="category" class="form-select" required>
                 <% categories.forEach(function(category) { %>
-                    <option value="<%= category.id %>"><%= category.name %></option>
+                    <option value="<%= category.id %>" <%= article && article.category_id == category.id ? 'selected' : '' %>><%= category.name %></option>
                 <% }); %>
             </select>
         </div>
 
         <!-- Publish -->
         <div class="mb-3 form-check">
-            <input type="checkbox" id="published" name="published" class="form-check-input">
+            <input type="checkbox" id="published" name="published" class="form-check-input" <%= article && article.published ? 'checked' : '' %> >
             <label for="published" class="form-check-label">Publish this article</label>
         </div>
 
@@ -60,10 +67,13 @@
         <div class="mb-3">
             <label for="featureImage" class="form-label">Featured Image</label>
             <input type="file" id="featureImage" name="featureImage" class="form-control" accept="image/*">
+            <% if (article && article.featureImage) { %>
+                <p><strong>Current Image:</strong> <img src="<%= article.featureImage %>" alt="Current Featured Image" style="max-width: 200px;"></p>
+            <% } %>
         </div>
 
         <!-- Submit Button -->
-        <button type="submit" class="btn btn-primary">Add Article</button>
+        <button type="submit" class="btn btn-primary"><%= article ? 'Update Article' : 'Add Article' %></button>
       </form>
     </div>
   </main>
