@@ -1,42 +1,41 @@
+# web322-assignment 5
 
-# web322-assignment 4
+## Web322 Assignment
 
-# Web322 Assignment
+Student Name: Kavya Byju  
+Student Number: 155142227  
+Student Email: kbyju@myseneca.ca  
+Date Created: 11 December 2024  
 
-Student Name: Kavya Byju 
-Student Number:  155142227
-Student Email:  kbyju@myseneca.ca
-Date Created:  27 November 2024
+GITHUB URL: https://github.com/kavya123-byju/AS5.git  
+VERCEL URL:  
+-as-5-l2ji5jxup-kavya-byjus-projects.vercel.app
 
-GITHUB URL:  https://github.com/kavya123-byju/Assignment-4.git
-VERCEL URL:  assignment-4-nu-six.vercel.app
-            assignment-4-git-main-kavya-byjus-projects.vercel.app
-            assignment-4-2orxnmysi-kavya-byjus-projects.vercel.app
 
 
 ## Description
 This project is a blog focused on fall fashion and coding.
+
 ## Technology Stack
 
 **Frontend**: HTML, CSS, JavaScript  
-**Backend**: Node.js, Express.js 
-**Templating Engine** EJS
-**Deployment** Vercel
-**Database**: TBD  
+**Backend**: Node.js, Express.js  
+**Templating Engine**: EJS  
+**Deployment**: Vercel  
+**Database**: PostgreSQL (Neon.tech)
 
 ## Features Implemented
- Dynamic Article Rendering
-Articles are dynamically rendered using EJS templates.
-Data is served via JSON and rendered into the frontend through EJS views.
-Articles are displayed in a table with the ability to filter by category.
+- **Dynamic Article Rendering**  
+  Articles are dynamically rendered using EJS templates. Data is served via JSON and rendered into the frontend through EJS views. Articles are displayed in a table with the ability to filter by category.
 
-Filtering by Category
-Articles can be filtered by category using dynamic links (e.g., /articles?category={categoryId}).
+- **Filtering by Category**  
+  Articles can be filtered by category using dynamic links (e.g., /articles?category={categoryId}).
 
-Add Article Form
-Added functionality to allow new articles to be added with real categories from the JSON file.
+- **Add Article Form**  
+  Added functionality to allow new articles to be added with real categories from the JSON file.
 
-### Notes
+## Neon.tech Integration
+The project integrates with Neon.tech, a cloud-based PostgreSQL database platform, to store and manage articles and their related data (such as title, content, and category). The database connection is handled using environment variables to keep sensitive credentials secure.
 
-By submitting this as my assignment, I declare that this assignment is my own work in accordance with Seneca Academic Policy. No part of this assignment has been copied manually or electronically from any other source (including web sites) or distributed to other students.
 
+   
