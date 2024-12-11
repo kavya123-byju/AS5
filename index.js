@@ -1,202 +1,147 @@
-// Import the required libraries
-const express = require("express");
-const multer = require("multer");
-const cloudinary = require("cloudinary").v2;
-const streamifier = require("streamifier");
-const path = require("path");
-const contentService = require("./content-service");
+const express = require('express');
+const { Pool } = require('pg'); // PostgreSQL client
+const path = require('path');
+const bodyParser = require('body-parser');
 
-// Cloudinary configuration
-cloudinary.config({
-  cloud_name: 'Kavya Byju',
-  api_key: '395145969244964',
-  api_secret: 'UWMoBIfHNnDcJQsv9LbvrbA8vFQ',
-  secure: true
-});
-
-// Set up multer for handling file uploads
-const upload = multer();
-
-// Create an Express application instance
 const app = express();
+const port = process.env.PORT || 3000;
 
-// Set the HTTP port to an environment variable or default to 3838
-const HTTP_PORT = process.env.PORT || 3838;
-
-// Configure EJS as the templating engine
-app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "views"));
-
-// Serve static files from the "public" directory
-app.use(express.static("public"));
-
-// Middleware to parse incoming requests with urlencoded payloads (like form submissions)
-app.use(express.urlencoded({ extended: true }));
-
-// Redirect root path to the "/about" page
-app.get("/", (req, res) => {
-  res.redirect("/about");
+// Set up PostgreSQL connection using Neon.tech credentials
+const pool = new Pool({
+  host: 'ep-mute-band-a5vunfrp.us-east-2.aws.neon.tech',
+  database: 'blog_database',
+  user: 'neondb_owner',
+  password: '7xScTIoh9vXW',
+  port: 5432,
+  ssl: { rejectUnauthorized: false },
 });
 
-// About page route
-app.get("/about", (req, res) => {
-  res.render("about");
-});
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
-// Categories route
-app.get("/categories", (req, res) => {
-  contentService
-    .getCategories()
-    .then((categories) => {
-      if (categories.length > 0) {
-        res.render("categories", { categories });
-      } else {
-        res.render("categories", { categories: [], error: "No categories found." });
-      }
-    })
-    .catch((err) => {
-      res.render("categories", { categories: [], error: err.message });
-    });
-});
+// Set up view engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
-// Modified Articles route with optional filtering by category or minDate
-app.get("/articles", (req, res) => {
-  // Check if a category is passed as a query parameter
-  if (req.query.category) {
-    contentService
-      .getArticlesByCategory(req.query.category)
-      .then((articles) => {
-        // Render the articles in the 'articles' view with the filtered data
-        res.render("articles", { 
-          articles, 
-          categoryName: req.query.category,  // Pass categoryName to the view
-          errorMessage: null 
-        });
-      })
-      .catch((err) => {
-        res.render("articles", { 
-          articles: [], 
-          categoryName: req.query.category,  // Pass categoryName to the view even in error case
-          errorMessage: err.message 
-        });
-      });
-  } else if (req.query.minDate) {
-    // If a minDate is provided, filter articles by date
-    contentService
-      .getArticlesByMinDate(req.query.minDate)
-      .then((articles) => {
-        res.render("articles", { articles, errorMessage: null });
-      })
-      .catch((err) => {
-        res.render("articles", { articles: [], errorMessage: err.message });
-      });
-  } else {
-    // If no filter is provided, return all articles
-    contentService
-      .getAllArticles()
-      .then((articles) => {
-        res.render("articles", { articles, errorMessage: null });
-      })
-      .catch((err) => {
-        res.render("articles", { articles: [], errorMessage: err.message });
-      });
+// Route to fetch all articles
+app.get('/api/articles', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM articles');
+    res.json(result.rows); 
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Database Error');
   }
 });
 
-// Single article route by ID (modified)
-app.get("/article/:Id", (req, res) => {
-  contentService
-    .getArticleById(req.params.Id)
-    .then((article) => {
-      // Check if the article is published, if not redirect to 404
-      if (!article.published) {
-        return res.status(404).render("404"); // Render 404 page if not published
-      }
-
-      // Get the category name based on the article's category
-      contentService.getCategories().then((categories) => {
-        const categoryName = categories.find(
-          (category) => category.id === article.category
-        )?.name || "Unknown Category";
-
-        // Pass the article data and the categoryName to the article.ejs view
-        res.render("article", { article, categoryName });
-      });
-    })
-    .catch((err) => {
-      res.status(404).render("404", { error: err.message });
-    });
-});
-
-// Add article form page
-app.get("/articles/add", (req, res) => {
-  contentService.getCategories()
-    .then(categories => {
-      // Pass the categories to the view for the Add Article form
-      res.render("addArticle", { categories });
-    })
-    .catch(err => {
-      res.status(500).json({ message: "Failed to load categories", error: err });
-    });
-});
-
-// Add article POST handler
-app.post("/articles/add", upload.single("featureImage"), (req, res) => {
-  if (req.file) {
-    let streamUpload = (req) => {
-      return new Promise((resolve, reject) => {
-        let stream = cloudinary.uploader.upload_stream(
-          { folder: "articles" },
-          (error, result) => {
-            if (result) resolve(result);
-            else reject(error);
-          }
-        );
-        streamifier.createReadStream(req.file.buffer).pipe(stream);
-      });
-    };
-
-    async function uploadToCloudinary(req) {
-      let result = await streamUpload(req);
-      return result.url;
+// Route to fetch a single article by ID
+app.get('/api/articles/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query('SELECT * FROM articles WHERE id = $1', [id]);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).send('Article not found');
     }
-
-    uploadToCloudinary(req)
-      .then((imageUrl) => {
-        processArticle(imageUrl);
-      })
-      .catch((err) => {
-        res.status(500).json({ message: "Image upload failed", error: err });
-      });
-  } else {
-    processArticle("");
-  }
-
-  function processArticle(imageUrl) {
-    const articleData = {
-      title: req.body.title,
-      content: req.body.content,
-      category: req.body.category,  // Ensure the selected category is included
-      published: req.body.published === "on",
-      featureImage: imageUrl || "",
-      postDate: new Date().toISOString(),
-    };
-
-    contentService
-      .addArticle(articleData)
-      .then(() => res.redirect("/articles"))
-      .catch((err) =>
-        res.status(500).json({ message: "Failed to add article", error: err })
-      );
+    
+    res.json(result.rows[0]); // Send the specific article as JSON
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Database Error');
   }
 });
 
-// Initialize data and start the server
-contentService.initialize().then(() => {
-  app.listen(HTTP_PORT, () => {
-    console.log("Server listening @ http://localhost:" + HTTP_PORT);
-  });
+// Route to fetch all categories
+app.get('/api/categories', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM categories');
+    res.json(result.rows); 
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Database Error');
+  }
 });
 
-// Export the Express app instance
-module.exports = app;
+// Route to fetch a single category by ID
+app.get('/api/categories/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query('SELECT * FROM categories WHERE id = $1', [id]);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).send('Category not found');
+    }
+    
+    res.json(result.rows[0]); 
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Database Error');
+  }
+});
+
+// Route to display homepage with articles
+app.get('/', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM articles');
+    res.render('index', { articles: result.rows }); 
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Database Error');
+  }
+});
+
+// Route to display the About page
+app.get('/about', (req, res) => {
+  res.render('about'); 
+});
+
+// Route to add a new article
+app.get('/addArticle', (req, res) => {
+  res.render('addArticle');
+});
+
+app.post('/addArticle', async (req, res) => {
+  const { title, content, category_id } = req.body;
+  
+  try {
+    await pool.query(
+      'INSERT INTO articles (title, content, category_id) VALUES ($1, $2, $3)',
+      [title, content, category_id]
+    );
+    res.redirect('/'); 
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Database Error');
+  }
+});
+
+// Route to display all categories
+app.get('/categories', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM categories');
+    res.render('categories', { categories: result.rows }); 
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Database Error');
+  }
+});
+
+// Route to view articles in a category
+app.get('/categories/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query(
+      'SELECT * FROM articles WHERE category_id = $1',
+      [id]
+    );
+    res.render('articles', { articles: result.rows }); 
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Database Error');
+  }
+});
+
+// Start the server
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
+}); 
